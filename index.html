@@ -2,199 +2,68 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartDoc Mega - Quản lý Tài liệu 10A7</title>
+    <title>Giviso - Quản lý 10A7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .file-card:hover { transform: translateY(-5px); transition: all 0.3s; }
-        .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 1000; align-items: center; justify-content: center; flex-direction: column; }
-        .excel-table { border-collapse: collapse; width: 100%; background: white; }
-        .excel-table th, .excel-table td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
-    </style>
 </head>
-<body class="text-slate-800">
-
-    <div id="loader" class="loading-overlay">
-        <i class="fas fa-circle-notch fa-spin text-4xl text-blue-600 mb-4"></i>
-        <p class="font-bold text-slate-600">Đang đồng bộ dữ liệu với Firebase...</p>
-    </div>
-
-    <div class="flex h-screen overflow-hidden">
-        <aside class="w-64 bg-slate-900 text-white p-6 hidden md:flex flex-col">
-            <div class="mb-10 flex items-center text-blue-400">
-                <i class="fas fa-microchip text-3xl mr-3"></i>
-                <span class="text-xl font-bold tracking-tight">MEGA TECH</span>
-            </div>
-            <nav class="flex-1 space-y-2">
-                <button onclick="loadData()" class="w-full flex items-center p-3 rounded-xl bg-blue-600 shadow-lg">
-                    <i class="fas fa-home mr-3"></i> Kho lưu trữ
-                </button>
-                <div class="pt-6 pb-2 text-[10px] font-bold text-slate-500 uppercase">Phân loại</div>
-                <button onclick="filterByType('pdf')" class="w-full flex items-center p-3 rounded-xl hover:bg-slate-800 text-slate-400">
-                    <i class="fas fa-file-pdf mr-3 text-red-500"></i> Giáo án PDF
-                </button>
-                <button onclick="filterByType('xlsx')" class="w-full flex items-center p-3 rounded-xl hover:bg-slate-800 text-slate-400">
-                    <i class="fas fa-file-excel mr-3 text-green-500"></i> Danh sách Excel
-                </button>
-            </nav>
-            <div class="mt-auto p-4 bg-slate-800 rounded-2xl text-[10px] text-slate-400 text-center">
-                DÀNH CHO GIÁO VIÊN<br>LỚP 10A7 - 2026
-            </div>
+<body class="bg-slate-50">
+    <div class="flex h-screen">
+        <aside class="w-64 bg-slate-900 text-white p-5">
+            <h1 class="text-xl font-bold mb-10 text-blue-400">GIVISO TECH</h1>
+            <button onclick="document.getElementById('addBox').classList.toggle('hidden')" class="w-full bg-blue-600 p-3 rounded-xl font-bold">
+                + THÊM TÀI LIỆU
+            </button>
         </aside>
 
-        <main class="flex-1 flex flex-col">
-            <header class="h-20 bg-white border-b flex items-center justify-between px-8 shadow-sm">
-                <div class="relative w-96">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" onkeyup="searchFiles(this.value)" placeholder="Tìm tài liệu thông minh..." class="w-full pl-12 pr-4 py-2.5 bg-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+        <main class="flex-1 p-10">
+            <div id="addBox" class="hidden mb-10 bg-white p-6 rounded-2xl shadow-sm border border-blue-100">
+                <div class="grid grid-cols-3 gap-4">
+                    <input type="text" id="fname" placeholder="Tên tài liệu (VD: Danh sách 10A7)" class="p-2 border rounded-lg outline-none">
+                    <input type="text" id="furl" placeholder="Dán link Google Drive vào đây" class="p-2 border rounded-lg outline-none">
+                    <button onclick="saveDoc()" class="bg-green-600 text-white rounded-lg font-bold">LƯU LÊN CLOUD</button>
                 </div>
-                <div class="flex space-x-4">
-                    <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold flex items-center shadow-lg shadow-blue-200 transition">
-                        <i class="fas fa-cloud-upload-alt mr-2"></i> Tải file lên
-                    </button>
-                    <input type="file" id="fileInput" class="hidden" onchange="handleFileUpload(event)">
-                </div>
-            </header>
+            </div>
 
-            <div id="fileGrid" class="flex-1 overflow-y-auto p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div id="list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 </div>
         </main>
     </div>
 
-    <div id="previewModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur hidden z-50 flex items-center justify-center p-6">
-        <div class="bg-white rounded-3xl w-full max-w-5xl h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-            <div class="p-5 border-b flex justify-between items-center px-8 bg-white">
-                <h3 id="modalTitle" class="font-bold text-lg text-slate-800 truncate"></h3>
-                <button onclick="closePreview()" class="text-slate-400 hover:text-red-500 text-3xl">&times;</button>
-            </div>
-            <div id="previewContent" class="flex-1 overflow-auto p-8 bg-slate-50 flex flex-col items-center"></div>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // Cấu hình mega-2a7b2c của thầy
         const firebaseConfig = {
             apiKey: "AIzaSyBTdEZpcTQ1ohSGGNcJg-gkEfVPgdZ9FVg",
             authDomain: "mega-2a7b2c.firebaseapp.com",
-            projectId: "mega-2a7b2c",
-            storageBucket: "mega-2a7b2c.firebasestorage.app",
-            messagingSenderId: "344986191358",
-            appId: "1:344986191358:web:91946739efe40b97df2caf"
+            projectId: "mega-2a7b2c"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Hàm tải file trực tiếp lên Firestore dưới dạng Base64
-        window.handleFileUpload = async (event) => {
-            const file = event.target.files[0];
-            if(!file) return;
-            if(file.size > 1024 * 1024) return alert("Vui lòng chọn file dưới 1MB!");
+        window.saveDoc = async () => {
+            const name = document.getElementById('fname').value;
+            const url = document.getElementById('furl').value;
+            if(!name || !url) return alert("Thầy điền thiếu thông tin rồi!");
 
-            document.getElementById('loader').style.display = 'flex';
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = async () => {
-                try {
-                    await addDoc(collection(db, "smart_docs"), {
-                        name: file.name,
-                        type: file.name.split('.').pop().toLowerCase(),
-                        size: (file.size / 1024).toFixed(1) + ' KB',
-                        content: reader.result,
-                        createdAt: new Date().getTime()
-                    });
-                    loadData();
-                } catch (e) { alert("Lỗi lưu trữ!"); }
-                finally { document.getElementById('loader').style.display = 'none'; }
-            };
+            await addDoc(collection(db, "docs_10a7"), { name, url, time: new Date().getTime() });
+            location.reload();
         };
 
-        window.loadData = async () => {
-            const q = query(collection(db, "smart_docs"), orderBy("createdAt", "desc"));
-            const snap = await getDocs(q);
-            window.allFiles = snap.docs.map(d => ({id: d.id, ...d.data()}));
-            renderFiles(window.allFiles);
-        };
-
-        window.deleteFile = async (id) => {
-            if(confirm("Xóa tài liệu này?")) {
-                await deleteDoc(doc(db, "smart_docs", id));
-                loadData();
-            }
-        };
-
-        loadData();
-    </script>
-
-    <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-
-        function renderFiles(data) {
-            const grid = document.getElementById('fileGrid');
-            const icons = { pdf: 'fa-file-pdf text-red-500', docx: 'fa-file-word text-blue-500', xlsx: 'fa-file-excel text-green-600', pptx: 'fa-file-powerpoint text-orange-500' };
-            grid.innerHTML = data.map(f => `
-                <div class="file-card bg-white p-5 rounded-3xl border border-slate-200 shadow-sm relative group cursor-pointer" onclick="showPreview('${f.id}')">
-                    <button onclick="event.stopPropagation(); deleteFile('${f.id}')" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition">&times;</button>
-                    <div class="h-28 bg-slate-50 rounded-2xl mb-4 flex items-center justify-center">
-                        <i class="fas ${icons[f.type] || 'fa-file'} text-4xl"></i>
-                    </div>
-                    <h3 class="font-bold text-sm truncate pr-4">${f.name}</h3>
-                    <div class="mt-4 flex justify-between text-[10px] font-black text-slate-400 tracking-widest uppercase">
-                        <span>${f.type}</span>
-                        <span>${f.size}</span>
-                    </div>
+        const snap = await getDocs(query(collection(db, "docs_10a7"), orderBy("time", "desc")));
+        const listDiv = document.getElementById('list');
+        snap.forEach(doc => {
+            const data = doc.data();
+            listDiv.innerHTML += `
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 transition">
+                    <i class="fas fa-file-alt text-2xl text-blue-500 mb-3"></i>
+                    <h3 class="font-bold text-slate-700 mb-4">${data.name}</h3>
+                    <a href="${data.url}" target="_blank" class="text-blue-600 font-bold text-sm hover:underline">MỞ TRÊN DRIVE →</a>
                 </div>
-            `).join('');
-        }
-
-        async function showPreview(id) {
-            const file = window.allFiles.find(f => f.id === id);
-            document.getElementById('modalTitle').innerText = file.name;
-            const container = document.getElementById('previewContent');
-            document.getElementById('previewModal').classList.remove('hidden');
-            container.innerHTML = '<i class="fas fa-spinner fa-spin text-2xl text-blue-600"></i>';
-
-            // Giải mã Base64 sang ArrayBuffer
-            const base64Data = file.content.split(',')[1];
-            const binaryString = window.atob(base64Data);
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-            const buffer = bytes.buffer;
-
-            if(file.type === 'pdf') {
-                const pdf = await pdfjsLib.getDocument({data: buffer}).promise;
-                container.innerHTML = '';
-                for(let i=1; i<=pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const canvas = document.createElement('canvas');
-                    const viewport = page.getViewport({scale: 1.2});
-                    canvas.width = viewport.width; canvas.height = viewport.height;
-                    await page.render({canvasContext: canvas.getContext('2d'), viewport}).promise;
-                    container.appendChild(canvas);
-                }
-            } else if(file.type === 'docx') {
-                const res = await mammoth.convertToHtml({arrayBuffer: buffer});
-                container.innerHTML = `<div class="bg-white p-12 shadow-sm w-full max-w-3xl">${res.value}</div>`;
-            } else if(file.type === 'xlsx') {
-                const wb = XLSX.read(buffer, {type: 'array'});
-                const html = XLSX.utils.sheet_to_html(wb.Sheets[wb.SheetNames[0]]);
-                container.innerHTML = `<div class="w-full overflow-x-auto border rounded-xl">${html.replace('<table>', '<table class="excel-table">')}</div>`;
-            }
-        }
-
-        function closePreview() { document.getElementById('previewModal').classList.add('hidden'); }
-        function searchFiles(v) { renderFiles(window.allFiles.filter(f => f.name.toLowerCase().includes(v.toLowerCase()))); }
-        function filterByType(t) { renderFiles(window.allFiles.filter(f => f.type === t)); }
+            `;
+        });
     </script>
 </body>
 </html>
