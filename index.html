@@ -2,38 +2,94 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Giviso - Quản lý 10A7</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MegaDoc - 10A7 Smart Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f3f4f6; }
+        .sidebar-item { transition: all 0.2s; border-radius: 12px; }
+        .sidebar-item:hover { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .doc-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .doc-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+    </style>
 </head>
-<body class="bg-slate-50">
-    <div class="flex h-screen">
-        <aside class="w-64 bg-slate-900 text-white p-5">
-            <h1 class="text-xl font-bold mb-10 text-blue-400">GIVISO TECH</h1>
-            <button onclick="document.getElementById('addBox').classList.toggle('hidden')" class="w-full bg-blue-600 p-3 rounded-xl font-bold">
-                + THÊM TÀI LIỆU
-            </button>
-        </aside>
+<body class="text-slate-800">
 
-        <main class="flex-1 p-10">
-            <div id="addBox" class="hidden mb-10 bg-white p-6 rounded-2xl shadow-sm border border-blue-100">
-                <div class="grid grid-cols-3 gap-4">
-                    <input type="text" id="fname" placeholder="Tên tài liệu (VD: Danh sách 10A7)" class="p-2 border rounded-lg outline-none">
-                    <input type="text" id="furl" placeholder="Dán link Google Drive vào đây" class="p-2 border rounded-lg outline-none">
-                    <button onclick="saveDoc()" class="bg-green-600 text-white rounded-lg font-bold">LƯU LÊN CLOUD</button>
+    <div class="flex h-screen overflow-hidden">
+        <aside class="w-72 bg-white border-r p-6 hidden md:flex flex-col">
+            <div class="flex items-center space-x-3 mb-10 px-2">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                    <i class="fas fa-brain text-xl"></i>
                 </div>
+                <span class="text-xl font-bold tracking-tight">MEGA DOC</span>
             </div>
 
-            <div id="list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <nav class="flex-1 space-y-1">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 px-2">Quản lý lớp 10A7</div>
+                <button class="sidebar-item w-full flex items-center p-3 text-blue-600 bg-blue-50 font-semibold">
+                    <i class="fas fa-th-large mr-3 w-5"></i> Dashboard
+                </button>
+                <button class="sidebar-item w-full flex items-center p-3 text-slate-500 hover:text-blue-600">
+                    <i class="fas fa-folder mr-3 w-5"></i> Giáo án điện tử
+                </button>
+                <button class="sidebar-item w-full flex items-center p-3 text-slate-500 hover:text-blue-600">
+                    <i class="fas fa-users mr-3 w-5"></i> Quản lý 6 Tổ
+                </button>
+            </nav>
+
+            <div class="bg-slate-900 rounded-2xl p-4 text-white">
+                <p class="text-[10px] text-slate-400 uppercase mb-2">Trạng thái hệ thống</p>
+                <div class="flex items-center text-xs font-bold">
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
                 </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col">
+            <header class="h-20 bg-white/80 backdrop-blur-md border-b flex items-center justify-between px-10 sticky top-0 z-10">
+                <div class="relative w-96">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" placeholder="Tìm tài liệu trên Drive..." class="w-full pl-12 pr-4 py-2.5 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition">
+                </div>
+                <button onclick="document.getElementById('addModal').classList.remove('hidden')" class="bg-slate-900 hover:bg-black text-white px-6 py-2.5 rounded-2xl font-bold flex items-center transition shadow-xl shadow-slate-200">
+                    <i class="fas fa-link mr-2 text-blue-400"></i> Thêm Link Drive
+                </button>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-10">
+                <div class="flex items-end justify-between mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-900">Chào thầy Dương!</h2>
+                        <p class="text-slate-500">Hôm nay thầy cần xử lý tài liệu gì cho lớp 10A7?</p>
+                    </div>
+                </div>
+
+                <div id="docGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    </div>
+            </div>
         </main>
+    </div>
+
+    <div id="addModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl scale-up-center">
+            <h3 class="text-2xl font-bold mb-6 text-slate-900">Kết nối tài liệu</h3>
+            <div class="space-y-4">
+                <input type="text" id="docName" placeholder="Tên tài liệu (VD: Bài tập Cơ khí)" class="w-full p-4 bg-slate-100 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-600">
+                <input type="text" id="docUrl" placeholder="Dán link Google Drive..." class="w-full p-4 bg-slate-100 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-600">
+                <div class="flex space-x-3 pt-6">
+                    <button onclick="document.getElementById('addModal').classList.add('hidden')" class="flex-1 py-3 font-bold text-slate-400">Hủy</button>
+                    <button onclick="saveLink()" class="flex-1 py-3 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-200">LƯU LÊN MÂY</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Cấu hình mega-2a7b2c của thầy
         const firebaseConfig = {
             apiKey: "AIzaSyBTdEZpcTQ1ohSGGNcJg-gkEfVPgdZ9FVg",
             authDomain: "mega-2a7b2c.firebaseapp.com",
@@ -43,27 +99,41 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        window.saveDoc = async () => {
-            const name = document.getElementById('fname').value;
-            const url = document.getElementById('furl').value;
-            if(!name || !url) return alert("Thầy điền thiếu thông tin rồi!");
+        window.saveLink = async () => {
+            const name = document.getElementById('docName').value;
+            const url = document.getElementById('docUrl').value;
+            if(!name || !url) return alert("Thầy ơi, đừng để trống ô nào nhé!");
 
-            await addDoc(collection(db, "docs_10a7"), { name, url, time: new Date().getTime() });
+            await addDoc(collection(db, "drive_docs"), { name, url, time: new Date().getTime() });
             location.reload();
         };
 
-        const snap = await getDocs(query(collection(db, "docs_10a7"), orderBy("time", "desc")));
-        const listDiv = document.getElementById('list');
-        snap.forEach(doc => {
-            const data = doc.data();
-            listDiv.innerHTML += `
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 transition">
-                    <i class="fas fa-file-alt text-2xl text-blue-500 mb-3"></i>
-                    <h3 class="font-bold text-slate-700 mb-4">${data.name}</h3>
-                    <a href="${data.url}" target="_blank" class="text-blue-600 font-bold text-sm hover:underline">MỞ TRÊN DRIVE →</a>
+        const q = query(collection(db, "drive_docs"), orderBy("time", "desc"));
+        const snap = await getDocs(q);
+        const grid = document.getElementById('docGrid');
+
+        snap.forEach(d => {
+            const data = d.data();
+            grid.innerHTML += `
+                <div class="doc-card bg-white p-6 rounded-[32px] shadow-sm relative overflow-hidden border border-white">
+                    <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fab fa-google-drive text-2xl text-blue-600"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 leading-tight mb-4">${data.name}</h3>
+                    <div class="flex items-center justify-between mt-auto">
+                        <a href="${data.url}" target="_blank" class="text-xs font-black text-blue-600 uppercase tracking-widest hover:text-blue-800 transition">Xem file →</a>
+                        <button onclick="deleteDocItem('${d.id}')" class="text-slate-300 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                 </div>
             `;
         });
+
+        window.deleteDocItem = async (id) => {
+            if(confirm("Xóa tài liệu này khỏi danh sách?")) {
+                await deleteDoc(doc(db, "drive_docs", id));
+                location.reload();
+            }
+        };
     </script>
 </body>
 </html>
