@@ -3,179 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartDoc Pro - Trình Xem Đa Năng</title>
+    <title>Giviso - Quản lý giáo án 10A7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrroot5/pptxjs@1.2.1/dist/pptxjs.bundle.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mrroot5/pptxjs@1.2.1/dist/pptxjs.css">
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .excel-table { border-collapse: collapse; width: 100%; font-size: 13px; }
-        .excel-table th, .excel-table td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
-        .excel-table th { background-color: #f1f5f9; position: sticky; top: 0; }
-        .file-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .file-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); border-color: #3b82f6; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .glass-card { background: white; border-radius: 20px; transition: all 0.3s ease; border: 1px solid #e2e8f0; }
+        .glass-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #3b82f6; }
     </style>
 </head>
 <body class="text-slate-800">
 
     <div class="flex h-screen overflow-hidden">
-        <aside class="w-72 bg-slate-900 text-white p-6 hidden md:flex flex-col">
+        <aside class="w-64 bg-slate-900 text-white p-6 hidden md:flex flex-col">
             <div class="mb-10 flex items-center text-blue-400">
-                <i class="fas fa-layer-group text-3xl mr-3"></i>
-                <span class="text-xl font-bold tracking-tighter">SMART HUB</span>
+                <i class="fas fa-book-reader text-2xl mr-3"></i>
+                <span class="text-xl font-bold">GIVISO HUB</span>
             </div>
-            <nav class="space-y-1">
-                <button onclick="renderFiles(myFiles)" class="w-full flex items-center p-3 rounded-xl bg-slate-800 hover:bg-slate-700 transition">
-                    <i class="fas fa-th-large mr-3 text-blue-400"></i> Tất cả file
-                </button>
-                <div class="h-px bg-slate-800 my-4"></div>
-                <button onclick="filterFiles('pdf')" class="w-full flex items-center p-3 rounded-xl hover:bg-slate-800 text-slate-400 transition">
-                    <i class="fas fa-file-pdf mr-3 text-red-500"></i> PDF
-                </button>
-                <button onclick="filterFiles('docx')" class="w-full flex items-center p-3 rounded-xl hover:bg-slate-800 text-slate-400 transition">
-                    <i class="fas fa-file-word mr-3 text-blue-500"></i> Word
-                </button>
-                <button onclick="filterFiles('xlsx')" class="w-full flex items-center p-3 rounded-xl hover:bg-slate-800 text-slate-400 transition">
-                    <i class="fas fa-file-excel mr-3 text-green-500"></i> Excel
-                </button>
-                <button onclick="filterFiles('pptx')" class="w-full flex items-center p-3 rounded-xl hover:bg-slate-800 text-slate-400 transition">
-                    <i class="fas fa-file-powerpoint mr-3 text-orange-500"></i> PowerPoint
+            <nav class="flex-1 space-y-2">
+                <button onclick="loadData()" class="w-full text-left p-3 rounded-xl bg-blue-600 shadow-lg transition">
+                    <i class="fas fa-sync-alt mr-2"></i> Làm mới danh sách
                 </button>
             </nav>
+            <div class="mt-auto text-[10px] text-slate-500 text-center uppercase tracking-widest">
+                Lớp 10A7 | Công nghệ
+            </div>
         </aside>
 
-        <main class="flex-1 flex flex-col bg-slate-50">
-            <header class="h-20 bg-white border-b flex items-center justify-between px-10 shadow-sm">
-                <div class="relative w-96">
+        <main class="flex-1 flex flex-col">
+            <header class="h-20 bg-white border-b flex items-center justify-between px-8">
+                <div class="relative w-1/2">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="searchInput" onkeyup="searchFiles()" placeholder="Tìm tên tài liệu..." class="w-full pl-12 pr-4 py-2.5 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="text" id="searchInput" onkeyup="searchFiles(this.value)" placeholder="Tìm giáo án, tài liệu..." class="w-full pl-12 pr-4 py-2.5 bg-slate-100 rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold flex items-center transition shadow-lg shadow-blue-200">
-                    <i class="fas fa-cloud-upload-alt mr-2"></i> Tải lên
+                <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold flex items-center shadow-md">
+                    <i class="fas fa-plus mr-2"></i> Thêm tài liệu
                 </button>
-                <input type="file" id="fileInput" class="hidden" accept=".pdf,.docx,.xlsx,.pptx" onchange="processFile(event)">
             </header>
 
-            <div class="flex-1 overflow-y-auto p-10">
-                <div id="fileGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-            </div>
+            <div id="fileGrid" class="flex-1 overflow-y-auto p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                </div>
         </main>
     </div>
 
-    <div id="previewModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur hidden z-50 flex items-center justify-center p-6">
-        <div class="bg-white rounded-3xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-            <div class="p-5 border-b flex justify-between items-center px-8">
-                <h3 id="modalTitle" class="font-bold text-lg text-slate-800 truncate max-w-md"></h3>
-                <button onclick="closePreview()" class="text-slate-400 hover:text-red-500 transition text-2xl">&times;</button>
+    <div id="addModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl">
+            <h3 class="text-xl font-bold mb-6">Thêm tài liệu mới</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-500 mb-1">Tên tài liệu</label>
+                    <input type="text" id="fileName" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:border-blue-500" placeholder="Ví dụ: Giáo án Tiết 1 - Cơ khí">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-500 mb-1">Đường dẫn (Link Drive/Web)</label>
+                    <input type="text" id="fileUrl" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:border-blue-500" placeholder="Dán link vào đây">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-500 mb-1">Loại file</label>
+                    <select id="fileType" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                        <option value="pdf">PDF</option>
+                        <option value="docx">Word</option>
+                        <option value="xlsx">Excel</option>
+                        <option value="pptx">PowerPoint</option>
+                    </select>
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button onclick="closeAddModal()" class="flex-1 py-3 text-slate-500 font-bold">Hủy</button>
+                    <button onclick="saveToFirestore()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200">Lưu lại</button>
+                </div>
             </div>
-            <div id="previewContent" class="flex-1 overflow-auto p-6 bg-slate-50 flex flex-col items-center"></div>
         </div>
     </div>
 
-    <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-        let myFiles = [];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        function processFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const ext = file.name.split('.').pop().toLowerCase();
-            const reader = new FileReader();
+        const firebaseConfig = {
+            apiKey: "AIzaSyBTdEZpcTQ1ohSGGNcJg-gkEfVPgdZ9FVg",
+            authDomain: "mega-2a7b2c.firebaseapp.com",
+            projectId: "mega-2a7b2c",
+            storageBucket: "mega-2a7b2c.firebasestorage.app",
+            messagingSenderId: "344986191358",
+            appId: "1:344986191358:web:91946739efe40b97df2caf"
+        };
 
-            reader.onload = function(e) {
-                const fileData = {
-                    id: Date.now(),
-                    name: file.name,
-                    type: ext,
-                    size: (file.size / 1024).toFixed(1) + ' KB',
-                    data: e.target.result
-                };
-                myFiles.unshift(fileData);
-                renderFiles(myFiles);
-            };
-            reader.readAsArrayBuffer(file);
-        }
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-        async function showPreview(id) {
-            const file = myFiles.find(f => f.id === id);
-            document.getElementById('modalTitle').innerText = file.name;
-            const container = document.getElementById('previewContent');
-            document.getElementById('previewModal').classList.remove('hidden');
-            container.innerHTML = '<div class="text-center mt-20"><i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i></div>';
+        window.saveToFirestore = async () => {
+            const name = document.getElementById('fileName').value;
+            const url = document.getElementById('fileUrl').value;
+            const type = document.getElementById('fileType').value;
+
+            if(!name || !url) return alert("Vui lòng điền đủ thông tin!");
 
             try {
-                if (file.type === 'pdf') {
-                    const pdf = await pdfjsLib.getDocument({data: file.data}).promise;
-                    container.innerHTML = '';
-                    for (let i = 1; i <= pdf.numPages; i++) {
-                        const page = await pdf.getPage(i);
-                        const canvas = document.createElement('canvas');
-                        const viewport = page.getViewport({scale: 1.2});
-                        canvas.width = viewport.width;
-                        canvas.height = viewport.height;
-                        await page.render({canvasContext: canvas.getContext('2d'), viewport}).promise;
-                        container.appendChild(canvas);
-                    }
-                } 
-                else if (file.type === 'docx') {
-                    const result = await mammoth.convertToHtml({arrayBuffer: file.data});
-                    container.innerHTML = `<div class="bg-white p-10 shadow-sm max-w-3xl w-full">${result.value}</div>`;
-                } 
-                else if (file.type === 'xlsx') {
-                    const workbook = XLSX.read(file.data, {type: 'array'});
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const html = XLSX.utils.sheet_to_html(firstSheet);
-                    container.innerHTML = `<div class="bg-white p-4 overflow-x-auto w-full shadow-inner border rounded-lg">${html.replace('<table>', '<table class="excel-table">')}</div>`;
-                }
-                else if (file.type === 'pptx') {
-                    container.innerHTML = `<div id="pptx-preview" class="w-full"></div>`;
-                    // Lưu ý: Thư viện PPTX.js cần cấu hình path, đây là hướng hiển thị mô phỏng cấu trúc Slide
-                    container.innerHTML = `<div class="bg-orange-50 p-10 border-2 border-dashed border-orange-200 rounded-xl text-center">
-                        <i class="fas fa-file-powerpoint text-5xl text-orange-500 mb-4"></i>
-                        <p class="font-bold">Chế độ xem PowerPoint đã sẵn sàng</p>
-                        <p class="text-sm text-slate-500">Đang tối ưu hóa hiển thị Slide trên Web...</p>
-                    </div>`;
-                }
-            } catch (err) {
-                container.innerHTML = `<p class="text-red-500">Không thể đọc file: ${err.message}</p>`;
-            }
-        }
+                await addDoc(collection(db, "docs"), {
+                    name, url, type,
+                    createdAt: new Date().getTime()
+                });
+                closeAddModal();
+                loadData();
+            } catch (e) { alert("Lỗi lưu dữ liệu!"); }
+        };
 
+        window.loadData = async () => {
+            const q = query(collection(db, "docs"), orderBy("createdAt", "desc"));
+            const snapshot = await getDocs(q);
+            const data = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+            window.allFiles = data;
+            renderFiles(data);
+        };
+
+        window.deleteFile = async (id) => {
+            if(confirm("Xóa tài liệu này?")) {
+                await deleteDoc(doc(db, "docs", id));
+                loadData();
+            }
+        };
+
+        loadData();
+    </script>
+
+    <script>
         function renderFiles(data) {
             const grid = document.getElementById('fileGrid');
-            grid.innerHTML = data.map(file => {
-                const icons = { pdf: 'fa-file-pdf text-red-500', docx: 'fa-file-word text-blue-500', xlsx: 'fa-file-excel text-green-600', pptx: 'fa-file-powerpoint text-orange-500' };
-                return `
-                <div class="file-card bg-white p-5 rounded-3xl border border-slate-200 cursor-pointer shadow-sm" onclick="showPreview(${file.id})">
-                    <div class="h-32 bg-slate-50 rounded-2xl mb-4 flex items-center justify-center group relative overflow-hidden">
-                        <i class="fas ${icons[file.type] || 'fa-file text-slate-400'} text-4xl"></i>
-                        <div class="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition"></div>
+            const icons = { pdf: 'fa-file-pdf text-red-500', docx: 'fa-file-word text-blue-500', xlsx: 'fa-file-excel text-green-600', pptx: 'fa-file-powerpoint text-orange-500' };
+            grid.innerHTML = data.map(f => `
+                <div class="glass-card p-5 relative group">
+                    <button onclick="deleteFile('${f.id}')" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition">&times;</button>
+                    <div class="h-24 flex items-center justify-center mb-4">
+                        <i class="fas ${icons[f.type] || 'fa-file'} text-4xl"></i>
                     </div>
-                    <h3 class="font-bold text-slate-700 truncate text-sm" title="${file.name}">${file.name}</h3>
-                    <div class="flex justify-between items-center mt-4">
-                        <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">${file.type}</span>
-                        <span class="text-[11px] text-slate-400 font-medium">${file.size}</span>
-                    </div>
-                </div>`;
-            }).join('');
+                    <h3 class="font-bold text-slate-700 truncate mb-4">${f.name}</h3>
+                    <a href="${f.url}" target="_blank" class="block w-full text-center py-2 bg-slate-50 text-blue-600 rounded-lg text-sm font-bold hover:bg-blue-50 transition">MỞ TÀI LIỆU</a>
+                </div>
+            `).join('');
         }
 
-        function closePreview() { document.getElementById('previewModal').classList.add('hidden'); }
-        function searchFiles() {
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            renderFiles(myFiles.filter(f => f.name.toLowerCase().includes(term)));
-        }
-        function filterFiles(type) {
-            renderFiles(myFiles.filter(f => f.type === type));
-        }
+        function openAddModal() { document.getElementById('addModal').classList.remove('hidden'); }
+        function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
+        function searchFiles(val) { renderFiles(window.allFiles.filter(f => f.name.toLowerCase().includes(val.toLowerCase()))); }
     </script>
 </body>
 </html>
